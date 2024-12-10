@@ -1,43 +1,47 @@
-# Azure Fabric Capacity Management Runbook
+# Azure Fabric Scaling Automation
 
-Dieses PowerShell-Skript ermöglicht die bequeme Verwaltung von Azure Fabric Capacities, einschließlich Start, Stopp und Skalierung auf vordefinierte Größen.
-
-## Funktionen
-
-- **Starten** einer Fabric Capacity.
-- **Stoppen** einer Fabric Capacity.
-- **Skalieren** der Kapazität auf vordefinierte Werte (z. B. F2, F4, F8, usw.).
+Dieses Repository enthält ein PowerShell-Skript, das zur Skalierung (Starten und Stoppen) von Azure Fabric Capacity Ressourcen verwendet wird. Es wurde entwickelt, um als **Azure Automation Runbook** zu fungieren, das mit einer **Managed Identity** arbeitet, um Azure Fabric-Kapazitäten automatisch zu steuern.
 
 ## Voraussetzungen
 
-### 1. Azure Automation-Konto
-Das Runbook muss in einem Azure Automation-Konto ausgeführt werden.
+Um dieses Skript erfolgreich in einer Azure Automation-Umgebung auszuführen, sind die folgenden Voraussetzungen erforderlich:
 
-### 2. Managed Identity
-Die Managed Identity des Automation-Kontos benötigt spezifische Berechtigungen:
-- **Reader**-Rolle für die Zielressourcengruppe.
-- **Contributor**-Rolle für die Ziel-Fabric Capacity.
-- Alternativ: Rollenbasierte Zugriffssteuerung (RBAC) direkt auf der Fabric-Ebene.
+### 1. Azure Automation Account
+Ein **Azure Automation-Konto** muss existieren, um das Skript als Runbook auszuführen. Dieses Konto sollte mit einer **Managed Identity** ausgestattet sein, die mit den erforderlichen Berechtigungen in der Ziel-Subscription verknüpft ist.
+
+### 2. Berechtigungen für das Automation-Konto
+Das **Automation-Konto** muss mit der entsprechenden **Managed Identity** die Rolle "Contributor" (oder eine geeignete Rolle) für die Ressourcen der Azure Fabric zugewiesen bekommen. Dies ermöglicht das Starten und Stoppen der Fabric Capacity.
 
 ### 3. Azure PowerShell Module
-Das Skript verwendet cmdlets aus dem **Azure PowerShell Modul** (z. B. `Resume-AzFabricCapacity`, `Suspend-AzFabricCapacity`), die in der Automation-Umgebung installiert sein müssen.
+Das Skript verwendet Cmdlets aus dem **Azure PowerShell Modul**. Um diese in einem Azure Automation Runbook auszuführen, müssen die folgenden Module installiert und verfügbar sein:
 
-### 4. Ressourcen
-- Fabric Capacity und Automation-Konto müssen sich im selben Azure Tenant befinden.
-- Ressourcengruppe und Name der Kapazität müssen bekannt sein.
+- **Az.Accounts**: Ermöglicht die Anmeldung und Verwaltung der Azure-Konten.
+- **Az.Resources**: Ermöglicht das Arbeiten mit Azure-Ressourcen und deren Verwaltung, einschließlich der Ressourcen, die für das Azure Fabric benötigt werden.
+- **Az.Fabric**: Bietet Cmdlets zum Verwalten und Skalieren von Azure Fabrics.
 
-## Parameter
+#### Hinweise:
+- Alle diese Module sind Teil des **Az-Modulpakets**, das regelmäßig aktualisiert wird. Stellen Sie sicher, dass Ihre Automation-Umgebung auf die neueste Version dieser Module aktualisiert ist, um Kompatibilitätsprobleme zu vermeiden.
 
-Das Skript akzeptiert folgende Parameter:
+### 4. Managed Identity
+Für das Runbook ist eine **Managed Identity** erforderlich, die das Skript mit Azure authentifiziert. Diese Identität sollte über die entsprechenden Berechtigungen (z. B. "Contributor" für die Azure Fabric Capacity) verfügen.
 
-- **`capacityMode`** *(string)*: Der gewünschte Modus oder die neue Kapazitätsgröße.
-  - Werte: `start`, `stop`, `F2`, `F4`, `F8`, `F16`, `F32`, `F64`, `F128`, `F256`, `F512`, `F1024`, `F2048`.
-- **`resourceGroupName`** *(string)*: Name der Ressourcengruppe, in der sich die Fabric Capacity befindet.
-- **`capacityName`** *(string)*: Name der zu steuernden Fabric Capacity.
+### 5. Rollenzuweisung der Managed Identity
+Stellen Sie sicher, dass die **Managed Identity** des Automation-Kontos in der Azure Subscription, in der sich die Azure Fabric Capacity befindet, eine passende Rolle zugewiesen bekommt. Dies ermöglicht die Verwaltung der Azure Fabric Capacity durch das Runbook.
 
-## Nutzung
+### 6. Parameter
+Das Skript akzeptiert die folgenden Parameter:
 
-### Beispielaufruf
+- **$capacityMode**: Die gewünschte Aktion (`start`, `stop` oder ein spezifischer SKU-Wert) zur Verwaltung der Azure Fabric Capacity. Neben den Aktionen "start" und "stop" kann auch ein SKU-Wert wie `F2`, `F4`, `F8`, bis hin zu `F2048` übergeben werden, um die Kapazität der Azure Fabric zu skalieren.
+- **$resourceGroupName**: Der Name der Ressourcengruppe, in der sich die Azure Fabric Capacity befindet.
+- **$capacityName**: Der Name der Azure Fabric Capacity, die gesteuert oder skaliert werden soll.
+
+### 7. Azure Subscription und Resource Group
+Das Skript ist so konzipiert, dass es in der aktiven Azure-Subscription arbeitet. Die Ressourcengruppe und der Name der Fabric Capacity können als Parameter übergeben werden.  
+Selbstverständlich sind auch andere Azure Authentifizierungs-Methoden denkbar, dies erfordert jedoch dann die Änderung an den entsprechenden Stellen im Skript und in der Cloud.
+
+## Verwendung
+
+### Beispiel-Skriptaufruf:
 
 ```powershell
-.\ManageFabricCapacity.ps1 -capacityMode "start" -resourceGroupName "myResourceGroup" -capacityName "myCapacity"
+Set-Capacity-Mode -capacityMode "start" -resourceGroupName "MyResourceGroup" -capacityName "MyFabricCapacity"
