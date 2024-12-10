@@ -1,6 +1,6 @@
 # Azure Fabric Scaling Automation
 
-Dieses Repository enthält ein PowerShell-Skript, das zur Skalierung (Starten und Stoppen) von Azure Fabric Capacity Ressourcen verwendet wird. Es wurde entwickelt, um als **Azure Automation Runbook** zu fungieren, das mit einer **Managed Identity** arbeitet, um Azure Fabric-Kapazitäten automatisch zu steuern.
+Dieses Repository enthält ein PowerShell-Skript, das zur Skalierung (Starten, Stoppen, SKU Änderungen) von Azure Fabric Capacity Ressourcen verwendet wird. Es wurde entwickelt, um als **Azure Automation Runbook** zu fungieren, das mit einer **Managed Identity** arbeitet, um Azure Fabric-Kapazitäten automatisch zu steuern.
 
 ## Voraussetzungen
 
